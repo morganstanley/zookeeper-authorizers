@@ -1,0 +1,8 @@
+# Ignore temporary files
+.*
+
+# Ensure that .gitignore files are included
+!.gitignore
+
+# Keep track of .keepme files
+!.keepme
