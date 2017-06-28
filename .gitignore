@@ -6,3 +6,10 @@
 
 # Keep track of .keepme files
 !.keepme
+
+build
+out
+.gradle
+*.iws
+*.ipr
+*.iml
