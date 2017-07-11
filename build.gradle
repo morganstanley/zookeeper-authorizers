@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.5'
+    compile 'com.unboundid:unboundid-ldapsdk:4.0.0'
+    compile 'org.apache.zookeeper:zookeeper:3.4.5'
+    compile 'com.google.inject:guice:4.1.0'
+
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.powermock:powermock-mockito-release-full:1.5.6'
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
