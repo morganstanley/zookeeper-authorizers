@@ -1,8 +1,19 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'nebula.rpm'
 
 repositories {
     jcenter()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.4.0'
+    }
 }
 
 dependencies {
@@ -15,8 +26,32 @@ dependencies {
     testCompile 'org.powermock:powermock-mockito-release-full:1.5.6'
 }
 
-task fatJar(type: Jar) {
+task fatJar(type: Jar, dependsOn: 'build') {
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+task createRpm(type: Rpm, dependsOn: 'fatJar') {
+    packageName 'zookeeper-ldap-plugin'
+    version '0.1'
+    release '0'
+    arch X86_64
+    license 'Apache License Version 2.0'
+    os LINUX
+    user 'root'
+
+    postInstall file('etc/postInstall.sh')
+
+    requires('zookeeper')
+    from('build/libs/zookeeper-ldap-roles-all.jar') {
+        fileMode = 0755
+        addParentDirs = false
+        into '/usr/lib/zookeeper/'
+    }
+    from('etc') {
+        fileMode = 0755
+        into '/etc/zookeeper/conf'
+        exclude '*.sh'
+    }
 }

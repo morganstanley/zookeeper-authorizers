@@ -1,6 +1,5 @@
 package org.treadmill.zk.plugin;
 
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -14,16 +13,15 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
 public class TestBase {
 
+  public TestBase() {
+    mockConfiguration();
+  }
+
   public static void mockConfiguration() {
     String dir = getProperty("user.dir");
     String testFilePath = dir + "/src/test/java/resources/configs-test.properties";
 
     mockStatic(System.class);
     when(getProperty("org.treadmill.zk.plugin.configuration")).thenReturn(testFilePath);
-  }
-
-  @Before
-  public void setup() {
-    mockConfiguration();
   }
 }
