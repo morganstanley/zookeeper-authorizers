@@ -20,3 +20,7 @@ task fatJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+task Jar(type: Jar) {
+    baseName = project.name 
+    with jar
+}
