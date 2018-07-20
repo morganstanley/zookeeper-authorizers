@@ -1,4 +1,4 @@
-# Makefile for zookeeper-ldap-roles RPM.
+# Makefile for zookeeper-authorizers RPM.
 
 PWD=$(shell pwd)
 
@@ -22,12 +22,12 @@ rpm:
 	mkdir -p $(RPMDIR)/RPMS
 	mkdir -p $(RPMDIR)/BUILD
 	mkdir -p $(RPMDIR)/BUILDROOT
-	cp build/libs/zookeeper-ldap-roles.jar $(RPMDIR)/BUILD/
+	cp build/libs/zookeeper-authorizers.jar $(RPMDIR)/BUILD/
 	rpmbuild -bb                                                     \
 		-D "_topdir $(RPMDIR)"                                       \
 		-D "_version $(REPO_VER)"                             \
 		-D "_release $(REPO_REL)"                             \
-		zookeeper-ldap-roles.spec
+		zookeeper-authorizers.spec
 
 install_rpm:
 	[ ! -z $(rpm_install_dir) ] || echo must run make rpm_install_dir=...

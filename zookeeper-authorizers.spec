@@ -1,10 +1,10 @@
-Name:           zookeeper_ldap_roles
+Name:           zookeeper_authorizers
 Version:        %{_version} 
 Release:        %{_release}%{?dist}
 Summary:        Plugin for Zookeeper
 
 License:        Apache 2.0
-URL:            https://github.com/Morgan-Stanley/zookeeper-ldap-roles
+URL:            https://github.com/Morgan-Stanley/zookeeper-authorizers
 Prefix:         /opt/zookeeper
 AutoReqProv:    no
 Requires:       zookeeper >= 3.4.12, zookeeper < 3.5
@@ -17,7 +17,7 @@ Zookeeper LDAP Roles plugin
 %build
 %install
 mkdir -p %{buildroot}/opt/zookeeper
-cp -r %{_builddir}/zookeeper-ldap-roles.jar %{buildroot}/opt/zookeeper/zookeeper-ldap-roles-%{_version}-%{_release}.jar
+cp -r %{_builddir}/zookeeper-authorizers.jar %{buildroot}/opt/zookeeper/zookeeper-authorizers-%{_version}-%{_release}.jar
 
 %post
 %files
