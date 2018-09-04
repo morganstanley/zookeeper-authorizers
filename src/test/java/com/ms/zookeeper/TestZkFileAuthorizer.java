@@ -24,6 +24,15 @@ public class TestZkFileAuthorizer extends TestCase {
     }
 
     @Test
+    public void testFileBasePath() {
+        System.setProperty("authzFileBasePath", "src/test/java/com/ms/zookeeper");
+        ZkFileAuthorizer auth = new ZkFileAuthorizer();
+        boolean b = auth.authorize("bothejj@REALM", "file://testauthfile");
+        assertEquals(b, true);
+        System.clearProperty("authzFileBasePath");
+    }
+
+    @Test
     public void testCachUpdate() {
         ZkFileAuthorizer auth = new ZkFileAuthorizer();
         assertTrue(auth.getCache().isEmpty());

@@ -38,8 +38,11 @@ public class ZkFileAuthorizer implements ZkAuthorizer, Runnable {
     // in minutes
     private final long authzFileCacheRefreshInterval;
 
+    private final String authzFileBasePath;
+
     public ZkFileAuthorizer() {
         authzFileCacheRefreshInterval = Integer.parseInt(System.getProperty("authzFileCacheRefreshInterval", "600000"));
+        authzFileBasePath = System.getProperty("authzFileBasePath", ".");
 
         new Thread(this, "auth file cache updater").start();
     }
@@ -75,7 +78,7 @@ public class ZkFileAuthorizer implements ZkAuthorizer, Runnable {
 
     private FileData loadFile(final String file) {
         FileData data = new FileData();
-        File f = new File(file);
+        File f = new File(authzFileBasePath, file);
         data.setTimestamp(f.lastModified());
         data.setUsers(loadUsers(f));
         cache.put(file, data);
@@ -103,7 +106,7 @@ public class ZkFileAuthorizer implements ZkAuthorizer, Runnable {
     }
 
     private void updateFile(final String file, final FileData data) {
-        File f = new File(file);
+        File f = new File(authzFileBasePath, file);
         long timestamp = f.lastModified();
         if (data.getTimestamp() != timestamp) {
             data.setTimestamp(timestamp);
