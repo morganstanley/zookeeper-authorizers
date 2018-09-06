@@ -6,6 +6,8 @@
 ##
 ##############################################################################
 
+GRADLE_OPTS="-Dmaven.repo.local=m2/repository"
+
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
 PRG="$0"
