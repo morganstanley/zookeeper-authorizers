@@ -41,8 +41,10 @@ public class ZkFileAuthorizer implements ZkAuthorizer, Runnable {
     private final String authzFileBasePath;
 
     public ZkFileAuthorizer() {
-        authzFileCacheRefreshInterval = Integer.parseInt(System.getProperty("authzFileCacheRefreshInterval", "600000"));
-        authzFileBasePath = System.getProperty("authzFileBasePath", ".");
+        authzFileCacheRefreshInterval = Integer.parseInt(System.getProperty("zookeeper.authzFileCacheRefreshInterval", "600000"));
+        authzFileBasePath = System.getProperty("zookeeper.authzFileBasePath", ".");
+        LOG.info("authzFileCacheRefreshInterval: " + authzFileCacheRefreshInterval);
+        LOG.info("authzFileBasePath: " + authzFileBasePath);
 
         new Thread(this, "auth file cache updater").start();
     }
