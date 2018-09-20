@@ -1,5 +1,8 @@
 # Makefile for zookeeper-authorizers RPM.
 
+# TODO: current build assumes pre-existing jarcache in s3. Need to be
+#       conditional and support "pure" build against public repositories.
+
 PWD=$(shell pwd)
 
 BLD=$(PWD)/build
@@ -19,7 +22,7 @@ upload_jarcache:
 sync_jarcache: 
 	aws s3 sync $(S3_JAR_CACHE) $(JARCACHE) 
 
-install: 
+install: sync_jarcache
 	GRADLE_OPTS="-Dmaven.repo.local=$(JARCACHE)" bash gradlew Jar
 
 rpm:
