@@ -4,17 +4,23 @@ PWD=$(shell pwd)
 
 BLD=$(PWD)/build
 RPMDIR=$(BLD)/rpms
+JARCACHE=$(BLD)/m2/repository
 
-REPO_TAG=$(shell git describe --tags HEAD --long)
-REPO_TAGFMT=$(shell echo ${REPO_TAG} | sed 's/-g/-/')
-REPO_VER=$(shell echo ${REPO_TAGFMT} | cut -d '-' -f 1)
-REPO_REL=$(shell echo ${REPO_TAGFMT} | cut -d '-' -f 2,3 | sed 's/-/_/')
+VERSION=$(shell grep version build.gradle | cut -d "'" -f 2)
+RELEASE=1
 
 clean:
 	rm -rf $(BLD)
 
+upload_jarcache: 
+	[ ! -z $(jarcache_dir) ] || echo must run make upload_jarcache jarcache_dir=... 
+	aws s3 sync $(jarcache_dir) $(S3_JAR_CACHE) 
+
+sync_jarcache: 
+	aws s3 sync $(S3_JAR_CACHE) $(JARCACHE) 
+
 install: 
-	bash gradlew Jar
+	GRADLE_OPTS="-Dmaven.repo.local=$(JARCACHE)" bash gradlew Jar
 
 rpm:
 	mkdir -p $(RPMDIR)/SOURCES
@@ -22,11 +28,11 @@ rpm:
 	mkdir -p $(RPMDIR)/RPMS
 	mkdir -p $(RPMDIR)/BUILD
 	mkdir -p $(RPMDIR)/BUILDROOT
-	cp build/libs/zookeeper-authorizers.jar $(RPMDIR)/BUILD/
+	cp build/libs/zookeeper-authorizers-$(VERSION).jar $(RPMDIR)/BUILD/
 	rpmbuild -bb                                                     \
 		-D "_topdir $(RPMDIR)"                                       \
-		-D "_version $(REPO_VER)"                             \
-		-D "_release $(REPO_REL)"                             \
+		-D "_version $(VERSION)"                             \
+		-D "_release $(RELEASE)"                             \
 		zookeeper-authorizers.spec
 
 install_rpm:

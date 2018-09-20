@@ -17,7 +17,7 @@ Zookeeper LDAP Roles plugin
 %build
 %install
 mkdir -p %{buildroot}/opt/zookeeper
-cp -r %{_builddir}/zookeeper-authorizers.jar %{buildroot}/opt/zookeeper/zookeeper-authorizers-%{_version}-%{_release}.jar
+cp -r %{_builddir}/zookeeper-authorizers-%{_version}.jar %{buildroot}/opt/zookeeper/zookeeper-authorizers-%{_version}.jar
 
 %post
 %files
