@@ -1,12 +1,33 @@
 # Makefile for zookeeper-authorizers RPM.
 
-# if proxy is needed for gradle than gradle/gradle.properties should have the following:
+# if proxy is needed, edit: .gradle/gradle.properties
+#
 # systemProp.http.proxyHost=$proxy_host
 # systemProp.https.proxyHost=$proxy_host
 # systemProp.http.proxyPort=$proxy_port
 # systemProp.https.proxyPort=$proxy_port
-
-# For the cache operations and install S3_JAR_CACHE should be set like s3://$s3_path
+#
+# Makefile is designed to first build the cache, then use it for subsequent
+# builds.
+#
+# For locked environments that by default do not have access to maven, it is
+# possible to first build all dependencies in s3 and then use them via s3 sync
+# for each build.
+#
+# The s3 bucket to be used as "shared" cache is controlled by environment
+# variable: S3_JAR_CACHE.
+#
+# Typical usage:
+#
+#  - edit proxy settings and build local cache:
+#  make build_cache
+#
+#  - upload to s3:
+#  export S3_JAR_CACHE=...
+#  make s3_cache
+#
+#  - jar and rpm using s3 cache or by downloading cache:
+#  make install rpm
 
 PWD=$(shell pwd)
 
@@ -20,19 +41,24 @@ RELEASE=1
 clean:
 	rm -rf $(BLD)
 
-remove_jarcache:
+clean_cache:
 	rm -rf $(JARCACHE)
 
-upload_jarcache: remove_jarcache refresh_cache
-	aws s3 sync $(JARCACHE) $(S3_JAR_CACHE) 
-
-sync_jarcache: 
-	aws s3 sync $(S3_JAR_CACHE) $(JARCACHE) 
-
-refresh_cache:
+build_cache: clean_cache
 	./gradlew jar --refresh-dependencies
 
-install: sync_jarcache
+s3_cache: build_cache
+	aws s3 sync --delete $(JARCACHE) $(S3_JAR_CACHE) 
+
+cache:
+	@if [ "$(S3_JAR_CACHE)" == "" ];               \
+		then ./gradlew jar --refresh-dependencies; \
+	else                                           \
+		echo using S3_JAR_CACHE=$(S3_JAR_CACHE);   \
+		aws s3 sync --delete $(S3_JAR_CACHE) $(JARCACHE);   \
+	fi
+
+install: cache
 	./gradlew jar --offline 
 
 rpm:
@@ -44,8 +70,8 @@ rpm:
 	cp build/libs/zookeeper-authorizers-$(VERSION).jar $(RPMDIR)/BUILD/
 	rpmbuild -bb                                                     \
 		-D "_topdir $(RPMDIR)"                                       \
-		-D "_version $(VERSION)"                             \
-		-D "_release $(RELEASE)"                             \
+		-D "_version $(VERSION)"                                     \
+		-D "_release $(RELEASE)"                                     \
 		zookeeper-authorizers.spec
 
 install_rpm:
