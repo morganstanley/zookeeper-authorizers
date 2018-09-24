@@ -6,6 +6,9 @@
  * user guide available at https://docs.gradle.org/4.2.1-ms-201712061/userguide/tutorial_java_projects.html
  */
 
+plugins {
+    id 'maven-publish'
+}
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 
@@ -13,9 +16,7 @@ apply plugin: 'java'
 repositories {
     // Use 'jcenter' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    mavenLocal()
-    //mavenCentral()
-    jcenter()
+    mavenCentral()
 }
 
 version = '0.1.0'

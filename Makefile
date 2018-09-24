@@ -1,13 +1,18 @@
 # Makefile for zookeeper-authorizers RPM.
 
-# TODO: current build assumes pre-existing jarcache in s3. Need to be
-#       conditional and support "pure" build against public repositories.
+# if proxy is needed for gradle than gradle/gradle.properties should have the following:
+# systemProp.http.proxyHost=$proxy_host
+# systemProp.https.proxyHost=$proxy_host
+# systemProp.http.proxyPort=$proxy_port
+# systemProp.https.proxyPort=$proxy_port
+
+# For the cache operations and install S3_JAR_CACHE should be set like s3://$s3_path
 
 PWD=$(shell pwd)
 
 BLD=$(PWD)/build
 RPMDIR=$(BLD)/rpms
-JARCACHE=$(BLD)/m2/repository
+JARCACHE=~/.gradle/caches
 
 VERSION=$(shell grep version build.gradle | cut -d "'" -f 2)
 RELEASE=1
@@ -15,15 +20,20 @@ RELEASE=1
 clean:
 	rm -rf $(BLD)
 
-upload_jarcache: 
-	[ ! -z $(jarcache_dir) ] || echo must run make upload_jarcache jarcache_dir=... 
-	aws s3 sync $(jarcache_dir) $(S3_JAR_CACHE) 
+remove_jarcache:
+	rm -rf $(JARCACHE)
+
+upload_jarcache: remove_jarcache refresh_cache
+	aws s3 sync $(JARCACHE) $(S3_JAR_CACHE) 
 
 sync_jarcache: 
 	aws s3 sync $(S3_JAR_CACHE) $(JARCACHE) 
 
+refresh_cache:
+	./gradlew jar --refresh-dependencies
+
 install: sync_jarcache
-	GRADLE_OPTS="-Dmaven.repo.local=$(JARCACHE)" bash gradlew Jar
+	./gradlew jar --offline 
 
 rpm:
 	mkdir -p $(RPMDIR)/SOURCES

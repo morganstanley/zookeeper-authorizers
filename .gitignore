@@ -13,3 +13,7 @@ out
 *.iws
 *.ipr
 *.iml
+gradle/caches
+gradle/daemon
+gradle/native
+gradle/wrapper/dists
